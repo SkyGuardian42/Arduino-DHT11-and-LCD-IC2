@@ -13,8 +13,10 @@
  *  -SDA to Analog Pin 4
  *  -SCL to Analog Pin 5
  */
+
+ 
 //J.A.R.V.I.S Version
-const char ver[] = "2.2";
+const char ver[] = "3.0";
 
 //DHT Library by ladyada
 //Source https://github.com/adafruit/DHT-sensor-library
@@ -26,8 +28,8 @@ const char ver[] = "2.2";
 #include <LiquidCrystal_I2C.h>
 
 //DHT Type and Pin
-#define DHTPIN 8     // what digital pin we're connected to
-#define DHTTYPE DHT11   // DHT 11
+#define DHTPIN 8            //pin connected to the DHT11
+#define DHTTYPE DHT11       //define DHT type
 
 //Define the LCD Pins and IC2 Adress
 LiquidCrystal_I2C  lcd(0x27,2,1,0,4,5,6,7);
@@ -35,13 +37,11 @@ LiquidCrystal_I2C  lcd(0x27,2,1,0,4,5,6,7);
 // Initialize DHT sensor.
 DHT dht(DHTPIN, DHTTYPE);
 
-int pos = 0;      //position of the text
+int pos = 0;               //position of the text
 
-unsigned long secs = 0;
-
-unsigned long currentMillis = 0;
-const long interval = 4500;       //time between the cycle of the lower LCD
-unsigned long previousMillis = interval;
+unsigned long currentMillis = 0;             //current milliseconds
+const long interval = 4500;                  //time between the cycle of the lower LCD
+unsigned long previousMillis = interval;     //time since the last cycle of the LCD
 
 byte Degrees[8] = {
   B01000,
@@ -62,16 +62,11 @@ byte Percent[8] = {
   B01011,
   B10011,
 };
-void clearLCD() {
-  
-  lcd.setCursor(0, 1);
+void clearLCD() {               //Clear the lower Screen
+    lcd.setCursor(0, 1);
   lcd.print("                ");   
-  }
+}
 void setup() {
-  Serial.begin(9600);
-  Serial.print("DHT");
-  Serial.print(DHTTYPE);
-  Serial.println(" test!");
   dht.begin();                   // initialize the dht
   lcd.setBacklightPin(3,POSITIVE);
   lcd.begin(16,2);               // initialize the lcd 
@@ -91,19 +86,15 @@ void loop() {
 
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  int h = dht.readHumidity();           
-  int t = dht.readTemperature();        // Read temperature as Celsius (the default)
-  secs = millis()/1000;
-  // Printing the Info to the serial monitor
+  int h = dht.readHumidity();           //read humidity in Percent
+  int t = dht.readTemperature();        //read temperature as Celsius
 
-
-  
 
   if (currentMillis - previousMillis >= interval){
     
-    previousMillis = currentMillis;
+    previousMillis = currentMillis;     //time since last cycle
       
-    switch (pos) {                      //Switching between Temperature and Humidity
+    switch (pos) {                      //Cycling through the different stages
       case 0:                           //Temperature
         clearLCD();
         pos = 1;
@@ -114,20 +105,12 @@ void loop() {
         break;
       case 1:                           //Humidity
         clearLCD();
-        pos = 2;
+        pos = 0;
         lcd.setCursor (0, 1);
         lcd.print("Humidity: ");
         lcd.print(h);
         lcd.write(byte(1));   //Percent
         break;
-      case 2:                           //Time since start
-       clearLCD();
-       pos = 0;
-       lcd.setCursor (0, 1);
-       lcd.print("Seconds: ");
-       lcd.print(secs);
-       lcd.write("s");
-       break;
    }
 
   }
