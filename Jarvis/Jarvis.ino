@@ -31,6 +31,11 @@ const char ver[] = "3.0";
 #define DHTPIN 8            //pin connected to the DHT11
 #define DHTTYPE DHT11       //define DHT type
 
+// set pin numbers:
+const int buttonPin = 2;     // the number of the pushbutton pin
+const int ledPin =  13;      // the number of the LED pin
+int buttonState = 0;         // variable for reading the pushbutton status
+
 //Define the LCD Pins and IC2 Adress
 LiquidCrystal_I2C  lcd(0x27,2,1,0,4,5,6,7);
 
@@ -72,7 +77,10 @@ void setup() {
   lcd.begin(16,2);               // initialize the lcd 
   lcd.createChar(0, Degrees);
   lcd.createChar(1, Percent);
-
+  
+  pinMode(ledPin, OUTPUT);    // initialize the LED pin as an output
+  pinMode(buttonPin, INPUT);  // initialize the pushbutton pin as an input
+  
   //Print Jarvis Version on top
   lcd.setCursor (0, 0);
   lcd.print("J.A.R.V.I.S");
@@ -84,12 +92,26 @@ void loop() {
     
   currentMillis = millis();
 
+  buttonState = digitalRead(buttonPin);
+
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   int h = dht.readHumidity();           //read humidity in Percent
   int t = dht.readTemperature();        //read temperature as Celsius
 
 
+
+  // check if the pushbutton is pressed.
+  // if it is, the buttonState is HIGH:
+  if (buttonState == HIGH) {
+    // turn LED on:
+    digitalWrite(ledPin, HIGH);
+  } else {
+    // turn LED off:
+    digitalWrite(ledPin, LOW);
+  }
+
+  
   if (currentMillis - previousMillis >= interval){
     
     previousMillis = currentMillis;     //time since last cycle
